@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const conectarDB = async () => {
     try{
         const connection = await mongoose.connect(
@@ -8,12 +9,15 @@ const conectarDB = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
             });
+            
         const url = `${connection.connection.host}:${connection.connection.port}`;
         console.log(`MongoDB conectado en ${url}`);
     }catch(error){
-        console.log(`error: ${error}`);
-        process.exit(1);
+        console.log(`error: ${error.message}`);
+        process.exit(1); //si hay un error, termina el proceso
     }
-}
+};
+
+
 
 export default conectarDB;
