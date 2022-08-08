@@ -78,7 +78,75 @@ const confirmarUsuario = async (req, res) => {
     }
 }
 
+const olvideMiPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+        const error = new Error('El usuario no existe');
+        return res.status(404).json({ msg: error.message });
+    }
+
+    try{
+        usuario.token = generarId();
+        await usuario.save();
+        res.json({
+            msg: 'Se ha enviado un email a tu cuenta'
+        })
+    }
+    catch(error){
+        console.log(error);
+    }
+};
+
+const comprobarToken = async (req, res) => {
+    const { token } = req.params;
+
+    const usuario = await Usuario.findOne({ token });
+    if (!usuario) {
+        const error = new Error('El token no es válido');
+        return res.status(403).json({
+            msg: error.message
+        });
+    }
+
+    try{
+        usuario.token = ''; //eliminar el token xq es de un solo uso
+        await usuario.save();
+        res.json({
+            msg: 'El token es válido y el usuario existe'
+        })
+    }catch(error){
+        console.log(error);
+    }
+}
+
+const nuevoPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    
+    const usuario = await Usuario.findOne({ token });
+    if (!usuario) {
+        const error = new Error('El usuario no existe');
+        return res.status(404).json({
+            msg: error.message
+        });
+    }
+
+    try{
+        usuario.password = password;
+        usuario.token = ''; //eliminar el token xq es de un solo uso
+        await usuario.save();
+        res.json({
+            msg: 'Tu contraseña ha sido restablecida'
+        })
+    }
+    catch(error){
+        console.log(error);
+    }
+
+}
 
 export {
-    registrar, autenticar, confirmarUsuario
+    registrar, autenticar, confirmarUsuario,olvideMiPassword,comprobarToken,nuevoPassword
 };
